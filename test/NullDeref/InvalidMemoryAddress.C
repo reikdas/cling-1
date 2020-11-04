@@ -6,7 +6,7 @@
 // LICENSE.TXT for details.
 //------------------------------------------------------------------------------
 
-// RUN: %cling -Xclang -verify < %s
+// RUN: cat %s | %cling -Xclang -verify
 // XFAIL: powerpc64
 //This file checks a dereference of an invalid memory address pointer..
 int *p = (int*)0x1;

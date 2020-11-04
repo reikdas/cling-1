@@ -6,7 +6,7 @@
 // LICENSE.TXT for details.
 //------------------------------------------------------------------------------
 
-// RUN: %cling 2>&1 < %s | FileCheck %s
+// RUN: cat %s | %cling 2>&1 | FileCheck %s
 
 // This file should be used as regression test for the value printing subsystem
 // Reproducers of fixed bugs should be put here

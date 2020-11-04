@@ -6,7 +6,7 @@
 // LICENSE.TXT for details.
 //------------------------------------------------------------------------------
 
-// RUN: %built_cling -fno-rtti 2>&1 < %s | FileCheck %s
+// RUN: cat %s | %built_cling -fno-rtti 2>&1 | FileCheck %s
 // Test Lookup::Named and Namespace, used in quick simple lookups.
 
 #include "cling/Interpreter/Interpreter.h"

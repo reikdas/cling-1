@@ -6,7 +6,7 @@
 // LICENSE.TXT for details.
 //------------------------------------------------------------------------------
 
-// RUN: %built_cling -fno-rtti < %s | FileCheck %s
+// RUN: cat %s | %built_cling -fno-rtti | FileCheck %s
 
 // This test makes sure the interpreter doesn't create many useless empty
 // transactions.
