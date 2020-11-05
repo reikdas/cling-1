@@ -86,16 +86,13 @@ jobs:
     - name: Display compiler version on Unix systems
       run: $CC --version
       if: runner.os != 'Windows'
-    - name: Get repository name
-      run: |
-        if [ ${{ github.event_name }} = 'pull_request' ]; then
-          echo "REPO=${{ github.event.pull_request.head.repo.full_name }}" >> $GITHUB_ENV
-        else
-          echo "REPO=$GITHUB_REPOSITORY" >> $GITHUB_ENV
-        fi
-      shell: bash
     - name: Execute cpt on Linux/OS X
       run: |
+        if [ ${{ github.event_name }} = 'pull_request' ]; then
+          REPO="${{ github.event.pull_request.head.repo.full_name }}"
+        else
+          REPO="$GITHUB_REPOSITORY"
+        fi
         if [[ "${{ matrix.compiler }}" = "gcc" && "${{ matrix.version }}" = "7" ]]; then
           export CLING_BUILD_FLAGS="-DCMAKE_CXX_STANDARD=17 -DCMAKE_CXX_STANDARD_REQUIRED=ON"
           if [ "${{ matrix.os }}" != "macOS-11.0" ] | [ "${{ matrix.os }}" != "macOS-10.15" ]; then
@@ -114,8 +111,13 @@ jobs:
       if: runner.os != 'Windows'
     - name: Execute cpt on Windows
       run: |
-        cmd /c call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\vc\Auxiliary\build\vcvarsall.bat" x64
-        python cpt.py --current-dev=tar --with-cmake-flags="-DLLVM_OPTIMIZED_TABLEGEN=ON -DCLING_BUILD_PLUGINS=Off -DCMAKE_C_COMPILER=\"C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Tools/MSVC/14.27.29110/bin/Hostx64/x64/cl.exe\" -DCMAKE_CXX_COMPILER=\"C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Tools/MSVC/14.27.29110/bin/Hostx64/x64/cl.exe\" -G \"${{ matrix.generator}}\"" --with-cling-url=https://github.com/$REPO --cling-branch=${{ github.head_ref }} --skip-cleanup
-      working-directory: tools/packaging/
-      shell: bash
+        IF "${{ github.event_name }}"=="pull_request" (
+          set REPO=${{ github.event.pull_request.head.repo.full_name }}
+        ) ELSE (
+          set REPO=%GITHUB_REPOSITORY%
+        )
+        call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\vc\Auxiliary\build\vcvarsall.bat" x64
+        C:\hostedtoolcache\windows\Python\3.7.9\x64\python.exe cpt.py --current-dev=tar --with-cmake-flags="-DLLVM_OPTIMIZED_TABLEGEN=ON -DCLING_BUILD_PLUGINS=Off -DCMAKE_C_COMPILER=\"C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Tools\MSVC\14.27.29110\bin\Hostx64\x64\cl.exe\" -DCMAKE_CXX_COMPILER=\"C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Tools\MSVC\14.27.29110\bin\Hostx64\x64\cl.exe\" -G \"${{ matrix.generator}}\"" --with-cling-url=https://github.com/%REPO% --cling-branch=${{ github.head_ref }} --skip-cleanup
+      working-directory: tools\packaging\
+      shell: cmd
       if: runner.os == 'Windows'
