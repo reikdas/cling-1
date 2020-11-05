@@ -117,6 +117,6 @@ jobs:
           $REPO = $Env:GITHUB_REPOSITORY
         }
         cmd /c call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\vc\Auxiliary\build\vcvarsall.bat" x64
-        C:\hostedtoolcache\windows\Python\3.7.9\x64\python.exe cpt.py --current-dev=tar --with-cmake-flags="-DLLVM_OPTIMIZED_TABLEGEN=ON -DCLING_BUILD_PLUGINS=Off -G '${{ matrix.generator}}'" --with-cling-url=https://github.com/$REPO --cling-branch=${{ github.head_ref }} --skip-cleanup
+        python cpt.py --current-dev=tar --with-cmake-flags="-DLLVM_OPTIMIZED_TABLEGEN=ON -DCLING_BUILD_PLUGINS=Off -G '${{ matrix.generator}}'" --with-cling-url=https://github.com/$REPO --cling-branch=${{ github.head_ref }} --skip-cleanup
       working-directory: tools\packaging\
       if: runner.os == 'Windows'
