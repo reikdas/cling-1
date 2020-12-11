@@ -51,6 +51,10 @@ jobs:
             compiler: gcc
             version: "9"
 
+          - name: windows-2019-visual-studio
+            os: windows-2019
+            generator: Visual Studio 16 2019
+
     steps:
     - uses: actions/checkout@v2
     - name: Setup compiler on Linux
@@ -79,9 +83,10 @@ jobs:
           echo "CXX=clang++" >> $GITHUB_ENV
         fi
       if: runner.os == 'macOS'
-    - name: Display compiler version
+    - name: Display compiler version on Unix systems
       run: $CC --version
-    - name: Execute cpt
+      if: runner.os != 'Windows'
+    - name: Execute cpt on Linux/OS X
       run: |
         if [ ${{ github.event_name }} = 'pull_request' ]; then
           REPO="${{ github.event.pull_request.head.repo.full_name }}"
@@ -103,3 +108,15 @@ jobs:
           ./cpt.py -y --check-requirements --current-dev=tar --with-cmake-flags="$CLING_BUILD_FLAGS" --with-cling-url=https://github.com/$REPO --cling-branch=${{ github.head_ref }} --with-binary-llvm
         fi
       working-directory: tools/packaging/
+      if: runner.os != 'Windows'
+    - name: Execute cpt on Windows
+      run: |
+        if ('${{ github.event_name }}' -eq 'pull_request') {
+          $REPO = '${{ github.event.pull_request.head.repo.full_name }}'
+        } else {
+          $REPO = $Env:GITHUB_REPOSITORY
+        }
+        cmd /c call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\vc\Auxiliary\build\vcvarsall.bat" x64
+        python cpt.py --current-dev=tar --with-cmake-flags="-DLLVM_OPTIMIZED_TABLEGEN=ON -DCLING_BUILD_PLUGINS=Off -G '${{ matrix.generator}}'" --with-cling-url=https://github.com/$REPO --cling-branch=${{ github.head_ref }} --skip-cleanup
+      working-directory: tools\packaging\
+      if: runner.os == 'Windows'
